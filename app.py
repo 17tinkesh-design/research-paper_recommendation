@@ -14,23 +14,26 @@ def download_models():
     """Downloads large model files from GitHub Releases if they don't exist."""
     os.makedirs('models', exist_ok=True)
     
-    # Using your exact GitHub username and repository
-    base_url = "https://github.com/17tinkesh-design/research_paper_recommendation/releases/download/v1.0/"
-    
-    # List of massive files that had to be uploaded to Releases
+    # ⚠️ IMPORTANT: REPLACE THESE 3 PLACEHOLDERS WITH YOUR ACTUAL GITHUB RELEASE LINKS ⚠️
+    # Keep the single quotes (' ') around the links!
     files_to_download = {
-        'models/embeddings.pkl': base_url + 'embeddings.pkl',
-        'models/model.h5': base_url + 'model.h5',
-        'models/sentences.pkl': base_url + 'sentences.pkl' # Included just in case this was also large
+        'models/embeddings.pkl': 'PASTE_LINK_FOR_EMBEDDINGS_HERE',
+        'models/model.h5': 'PASTE_LINK_FOR_MODEL_HERE',
+        'models/sentences.pkl': 'PASTE_LINK_FOR_SENTENCES_HERE'
     }
     
     for file_path, url in files_to_download.items():
         if not os.path.exists(file_path):
-            with st.spinner(f"Downloading {file_path} (this happens only once)..."):
+            # Skip download if the placeholder text wasn't replaced
+            if "PASTE_LINK" in url:
+                st.error(f"⚠️ You forgot to paste the real link for {file_path} in the code!")
+                continue
+                
+            with st.spinner(f"Downloading {file_path}..."):
                 try:
                     urllib.request.urlretrieve(url, file_path)
                 except Exception as e:
-                    st.error(f"Could not download {file_path}. Make sure it is uploaded to your v1.0 GitHub Release!")
+                    st.error(f"Could not download {file_path}. The link might be incorrect or broken.")
 
 # Run the download check before trying to load anything
 download_models()
@@ -57,7 +60,6 @@ st.markdown("""
 # --- 3. LOAD MODELS (CACHED) ---
 @st.cache_resource
 def load_all_components():
-    # A. Load Recommendation Engine
     rec_model = SentenceTransformer('all-MiniLM-L6-v2')
     
     try:
@@ -66,7 +68,6 @@ def load_all_components():
     except Exception:
         embeddings, sentences = None, None
     
-    # B. Attempt to Load Prediction Model
     try:
         loaded_model = keras.models.load_model("models/model.h5")
         with open("models/text_vectorizer_config.pkl", "rb") as f:
@@ -87,7 +88,6 @@ def load_all_components():
         vectorizer.set_weights(weights)
         return rec_model, embeddings, sentences, loaded_model, vectorizer, vocab
     except Exception:
-        # Fallback if smaller files are missing
         return rec_model, embeddings, sentences, None, None, None
 
 rec_model, embeddings, sentences, loaded_model, loaded_text_vectorizer, loaded_vocab = load_all_components()
@@ -96,14 +96,14 @@ rec_model, embeddings, sentences, loaded_model, loaded_text_vectorizer, loaded_v
 # --- 4. LOGIC FUNCTIONS ---
 def get_recommendations(title_input):
     if embeddings is None or sentences is None:
-        return ["Error: Embeddings file not found. Check GitHub Releases."]
+        return ["Error: Recommendations unavailable. Model files are missing."]
     query_emb = rec_model.encode(title_input)
     scores = util.cos_sim(embeddings, query_emb)
     top_results = torch.topk(scores, dim=0, k=5, sorted=True)
     return [sentences[idx.item()] for idx in top_results.indices]
 
 def predict_subject_fallback(abstract):
-    keywords = {"neural": "Computer Science", "network": "Deep Learning", "algorithm": "Mathematics"}
+    keywords = {"neural": "Computer Science", "network": "Deep Learning", "algorithm": "Mathematics", "pruning": "Machine Learning", "anomaly": "Data Science"}
     found = [val for key, val in keywords.items() if key in abstract.lower()]
     return found if found else ["General Research"]
 
