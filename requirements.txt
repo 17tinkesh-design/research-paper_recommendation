@@ -1,0 +1,5 @@
+streamlit
+torch --index-url https://download.pytorch.org/whl/cpu
+sentence-transformers
+tensorflow-cpu
+numpy
