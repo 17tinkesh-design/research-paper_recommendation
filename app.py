@@ -5,6 +5,30 @@ import pickle
 from tensorflow.keras.layers import TextVectorization
 import numpy as np
 from tensorflow import keras
+import os
+import urllib.request
+
+# --- NEW DOWNLOADER CODE ---
+def download_models():
+    # Create the models folder if it doesn't exist
+    os.makedirs('models', exist_ok=True)
+    
+    # Dictionary of file paths and their direct download links
+    # REPLACE THE URLS WITH YOUR ACTUAL LINKS FROM STEP 2!
+    files_to_download = {
+        'models/embeddings.pkl': 'PASTE_YOUR_EMBEDDINGS_LINK_HERE',
+        'models/model.h5': 'PASTE_YOUR_MODEL_LINK_HERE',
+        # Add sentences.pkl or vocab.pkl here if they were also too big to upload normally
+    }
+    
+    for file_path, url in files_to_download.items():
+        if not os.path.exists(file_path):
+            with st.spinner(f"Downloading {file_path} (this might take a minute)..."):
+                urllib.request.urlretrieve(url, file_path)
+
+# Run the download function before loading models
+download_models()
+# ----------------------------
 
 # 1. PAGE CONFIGURATION
 st.set_page_config(page_title="Research AI", page_icon="📚", layout="wide")
