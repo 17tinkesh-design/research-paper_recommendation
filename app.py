@@ -14,26 +14,20 @@ def download_models():
     """Downloads large model files from GitHub Releases if they don't exist."""
     os.makedirs('models', exist_ok=True)
     
-    # ⚠️ IMPORTANT: REPLACE THESE 3 PLACEHOLDERS WITH YOUR ACTUAL GITHUB RELEASE LINKS ⚠️
-    # Keep the single quotes (' ') around the links!
+    # EXACT links based on the URL you provided
     files_to_download = {
-        'models/embeddings.pkl': 'PASTE_LINK_FOR_EMBEDDINGS_HERE',
-        'models/model.h5': 'PASTE_LINK_FOR_MODEL_HERE',
-        'models/sentences.pkl': 'PASTE_LINK_FOR_SENTENCES_HERE'
+        'models/embeddings.pkl': 'https://github.com/17tinkesh-design/research-paper_recommendation/releases/download/v1.0/embeddings.pkl',
+        'models/model.h5': 'https://github.com/17tinkesh-design/research-paper_recommendation/releases/download/v1.0/model.h5',
+        'models/sentences.pkl': 'https://github.com/17tinkesh-design/research-paper_recommendation/releases/download/v1.0/sentences.pkl'
     }
     
     for file_path, url in files_to_download.items():
         if not os.path.exists(file_path):
-            # Skip download if the placeholder text wasn't replaced
-            if "PASTE_LINK" in url:
-                st.error(f"⚠️ You forgot to paste the real link for {file_path} in the code!")
-                continue
-                
-            with st.spinner(f"Downloading {file_path}..."):
+            with st.spinner(f"Downloading {file_path} (this happens only once)..."):
                 try:
                     urllib.request.urlretrieve(url, file_path)
                 except Exception as e:
-                    st.error(f"Could not download {file_path}. The link might be incorrect or broken.")
+                    st.error(f"Could not download {file_path}. Check if the file is named correctly in your v1.0 Release.")
 
 # Run the download check before trying to load anything
 download_models()
